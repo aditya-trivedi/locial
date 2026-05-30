@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Feed – Instagram</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #fafafa;
+      color: #262626;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #fff;
+      border-bottom: 1px solid #dbdbdb;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .navbar-logo {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: 'Georgia', serif;
+      color: #262626;
+      letter-spacing: -0.5px;
+    }
+
+    .navbar-search {
+      background: #efefef;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      height: 36px;
+      width: 268px;
+    }
+    .navbar-search svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: #8e8e8e;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .navbar-search input {
+      background: transparent; border: none; outline: none;
+      font-size: 14px; color: #262626; width: 100%;
+    }
+    .navbar-search input::placeholder { color: #8e8e8e; }
+
+    .navbar-icons {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .navbar-icons svg {
+      width: 24px; height: 24px;
+      fill: none; stroke: #262626;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+      cursor: pointer;
+    }
+    .navbar-icons svg:hover { opacity: 0.6; }
+
+    .nav-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      max-width: 935px;
+      margin: 0 auto;
+      padding: 30px 20px;
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    /* ── Feed ── */
+    .feed {
+      width: 614px;
+      flex-shrink: 0;
+    }
+
+    /* ── Stories ── */
+    .stories-bar {
+      background: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      padding: 16px 0;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .stories-bar::-webkit-scrollbar { display: none; }
+
+    .story-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .story-ring {
+      width: 66px; height: 66px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      padding: 2.5px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .story-ring.seen {
+      background: #dbdbdb;
+    }
+
+    .story-avatar {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: #fff;
+    }
+
+    .story-username {
+      font-size: 12px;
+      color: #262626;
+      max-width: 74px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── Post card ── */
+    .post-card {
+      background: #fff;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 10px;
+    }
+
+    .post-avatar-ring {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      padding: 2px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .post-avatar {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff;
+    }
+
+    .post-header-info { flex: 1; }
+    .post-username {
+      font-size: 14px;
+      font-weight: 600;
+      color: #262626;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .post-username .verified {
+      display: inline-flex;
+    }
+    .post-username .verified svg {
+      width: 14px; height: 14px;
+      fill: #0095f6;
+    }
+    .post-location {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+
+    .post-more {
+      background: transparent; border: none; cursor: pointer;
+      padding: 4px; color: #262626;
+    }
+    .post-more svg {
+      width: 20px; height: 20px;
+      fill: none; stroke: #262626;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Post image placeholder ── */
+    .post-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── Post actions ── */
+    .post-actions {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px 0;
+      gap: 16px;
+    }
+
+    .action-icon {
+      background: transparent; border: none; cursor: pointer;
+      padding: 6px 0;
+      display: flex; align-items: center;
+      color: #262626;
+      transition: opacity 0.15s;
+    }
+    .action-icon:hover { opacity: 0.5; }
+    .action-icon svg {
+      width: 24px; height: 24px;
+      fill: none; stroke: currentColor;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .action-icon.liked svg { fill: #ed4956; stroke: #ed4956; }
+
+    .action-icon-right { margin-left: auto; }
+
+    .post-likes {
+      padding: 0 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #262626;
+      margin-top: 8px;
+    }
+
+    .post-caption {
+      padding: 6px 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #262626;
+    }
+    .post-caption .caption-user {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .post-comments-link {
+      padding: 2px 16px;
+      font-size: 14px;
+      color: #8e8e8e;
+      cursor: pointer;
+    }
+    .post-comments-link:hover { color: #262626; }
+
+    .post-add-comment {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid #efefef;
+      margin-top: 8px;
+      gap: 12px;
+    }
+    .post-add-comment input {
+      flex: 1;
+      background: transparent; border: none; outline: none;
+      font-size: 14px; color: #262626;
+    }
+    .post-add-comment input::placeholder { color: #8e8e8e; }
+    .post-add-comment button {
+      background: transparent; border: none; cursor: pointer;
+      color: #0095f6; font-size: 14px; font-weight: 600;
+      opacity: 0.4;
+    }
+
+    .post-time {
+      padding: 4px 16px 12px;
+      font-size: 10px;
+      color: #8e8e8e;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Right sidebar ── */
+    .sidebar {
+      flex: 1;
+      padding-top: 8px;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .sidebar-avatar {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      padding: 2px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sidebar-avatar-inner {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: #c7c7c7;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: #fff;
+    }
+    .sidebar-profile-info { flex: 1; }
+    .sidebar-username { font-size: 14px; font-weight: 600; }
+    .sidebar-name { font-size: 14px; color: #8e8e8e; }
+    .sidebar-switch { color: #0095f6; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    .sidebar-section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .sidebar-section-title span:first-child {
+      font-size: 14px; font-weight: 600; color: #8e8e8e;
+    }
+    .sidebar-section-title span:last-child {
+      font-size: 12px; font-weight: 600; color: #262626; cursor: pointer;
+    }
+
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .suggest-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    .suggest-info { flex: 1; min-width: 0; }
+    .suggest-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .suggest-sub  { font-size: 12px; color: #8e8e8e; }
+    .follow-btn {
+      background: transparent; border: none; cursor: pointer;
+      color: #0095f6; font-size: 13px; font-weight: 600;
+    }
+    .follow-btn:hover { color: #00376b; }
+
+    .sidebar-footer {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #c7c7c7;
+      line-height: 1.8;
+    }
+    .sidebar-footer a { color: #c7c7c7; text-decoration: none; margin-right: 4px; }
+    .sidebar-footer a:hover { text-decoration: underline; }
+
+    .loader {
+      text-align: center;
+      padding: 28px;
+      color: #8e8e8e;
+      font-size: 14px;
+    }
+
+    @media (max-width: 935px) { .sidebar { display: none; } }
+    @media (max-width: 614px) { .feed { width: 100%; } .layout { padding: 0; } .post-card { border-radius: 0; border-left: none; border-right: none; } }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-logo">Instagram</div>
+
+    <div class="navbar-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search">
+    </div>
+
+    <div class="navbar-icons">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="nav-avatar">Y</div>
+    </div>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Feed -->
+    <main class="feed">
+
+      <!-- Stories -->
+      <div class="stories-bar" id="stories"></div>
+
+      <!-- Posts -->
+      <div id="posts"></div>
+      <div class="loader" id="loader">Loading posts...</div>
+
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">
+          <div class="sidebar-avatar-inner">Y</div>
+        </div>
+        <div class="sidebar-profile-info">
+          <div class="sidebar-username">you</div>
+          <div class="sidebar-name">Your Name</div>
+        </div>
+        <div class="sidebar-switch">Switch</div>
+      </div>
+
+      <div class="sidebar-section-title">
+        <span>Suggested for you</span>
+        <span>See All</span>
+      </div>
+
+      <div class="suggest-item">
+        <div class="suggest-avatar" style="background:#5c5bde">PA</div>
+        <div class="suggest-info">
+          <div class="suggest-name">pro_analyst</div>
+          <div class="suggest-sub">Followed by analyst_ai</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="suggest-item">
+        <div class="suggest-avatar" style="background:#1d9bf0">IE</div>
+        <div class="suggest-info">
+          <div class="suggest-name">inet_essayist</div>
+          <div class="suggest-sub">Suggested for you</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="suggest-item">
+        <div class="suggest-avatar" style="background:#00ba7c">SF</div>
+        <div class="suggest-info">
+          <div class="suggest-name">startup_founder</div>
+          <div class="suggest-sub">New to Instagram</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="suggest-item">
+        <div class="suggest-avatar" style="background:#f91880">CR</div>
+        <div class="suggest-info">
+          <div class="suggest-name">contra_real</div>
+          <div class="suggest-sub">Followed by 3 others</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>
+          <a href="#">About</a><a href="#">Help</a><a href="#">Press</a>
+          <a href="#">API</a><a href="#">Jobs</a><a href="#">Privacy</a>
+          <a href="#">Terms</a><a href="#">Locations</a>
+        </div>
+        <div style="margin-top:8px">© 2025 Instagram from Meta</div>
+      </div>
+    </aside>
+
+  </div>
+
+  <script src="personalities-ui.js"></script>
+  <script>
+    const POSTS_PER_BATCH = 20;
+    let allPosts = [];
+    let currentIndex = 0;
+    let loading = false;
+
+    const postsContainer = document.getElementById("posts");
+    const storiesBar     = document.getElementById("stories");
+    const loader         = document.getElementById("loader");
+
+    const gradients = [
+      ["#feda75","#fa7e1e","#d62976","#962fbf","#4f5bd5"],
+      ["#f77737","#fcaf45","#ffdc80","#fd1d1d","#833ab4"],
+      ["#405de6","#5851db","#833ab4","#c13584","#e1306c"],
+      ["#6929c4","#1192e8","#005d5d","#9f1853","#fa4d56"],
+      ["#0f62fe","#42be65","#ff7eb6","#08bdba","#a56eff"],
+    ];
+
+    const locations = [
+      "San Francisco, CA", "New York, NY", "Austin, TX",
+      "Seattle, WA", "Boston, MA", "London, UK", "Berlin, Germany"
+    ];
+
+    const emojiBgs = ["#ffecd2","#e8f4fd","#e8fdf5","#fde8f5","#f0e8fd","#fdf5e8","#e8fdfd"];
+
+    function fmtLikes(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+      if (n >= 1000)    return (n / 1000).toFixed(1) + "K";
+      return n;
+    }
+
+    function timeAgo(dateStr) {
+      const diff = (Date.now() - new Date(dateStr)) / 1000;
+      if (diff < 3600)  return Math.floor(diff / 60) + " MINUTES AGO";
+      if (diff < 86400) return Math.floor(diff / 3600) + " HOURS AGO";
+      return Math.floor(diff / 86400) + " DAYS AGO";
+    }
+
+    function buildStories() {
+      LocialPersonalities.list.forEach((p) => {
+        const item = document.createElement("div");
+        item.className = "story-item";
+        item.innerHTML = `
+          <div class="story-ring">
+            <div class="story-avatar" style="background:${p.color}">${p.name.charAt(0)}</div>
+          </div>
+          <span class="story-username">${p.name.split(" ")[0]}</span>`;
+        storiesBar.appendChild(item);
+      });
+
+      // add a "Your story" item at the front
+      const you = document.createElement("div");
+      you.className = "story-item";
+      you.innerHTML = `
+        <div class="story-ring seen">
+          <div class="story-avatar" style="background:#c7c7c7">Y</div>
+        </div>
+        <span class="story-username">Your story</span>`;
+      storiesBar.insertBefore(you, storiesBar.firstChild);
+    }
+
+    function createPost(post) {
+      const card = document.createElement("div");
+      card.className = "post-card";
+
+      const pers     = LocialPersonalities.resolve(post);
+      const name     = pers.name;
+      const color    = pers.color;
+      const initial  = name.charAt(0).toUpperCase();
+      const likes    = Math.floor(Math.random() * 80000) + 200;
+      const comments = Math.floor(Math.random() * 400)   + 5;
+      const gIdx     = Math.floor(Math.random() * gradients.length);
+      const grad     = gradients[gIdx];
+      const bgColor  = emojiBgs[gIdx % emojiBgs.length];
+      const loc      = locations[Math.floor(Math.random() * locations.length)];
+      const verified = Math.random() > 0.4;
+      const liked    = Math.random() > 0.6;
+
+      const caption  = post.rewritten.text;
+      const shortCap = caption.length > 120 ? caption.slice(0, 120) + "… <span style='cursor:pointer;color:#8e8e8e'>more</span>" : caption;
+
+      card.innerHTML = `
+        <div class="post-header">
+          <div class="post-avatar-ring" style="background: linear-gradient(45deg, ${grad.join(',')})">
+            <div class="post-avatar" style="background:${color}">${initial}</div>
+          </div>
+          <div class="post-header-info">
+            <div class="post-username">
+              ${name}
+              ${verified ? `<span class="verified"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="none" fill="#0095f6"/></svg></span>` : ""}
+            </div>
+            <div class="post-location">${loc}</div>
+          </div>
+          <button class="post-more">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
+
+        <div class="post-image" style="background:${bgColor}">
+          <span>${initial}</span>
+        </div>
+
+        <div class="post-actions">
+          <button class="action-icon ${liked ? "liked" : ""}">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <button class="action-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <button class="action-icon">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+          <button class="action-icon action-icon-right">
+            <svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+          </button>
+        </div>
+
+        <div class="post-likes">${fmtLikes(likes)} likes</div>
+
+        <div class="post-caption">
+          <span class="caption-user">${name}</span>${shortCap}
+        </div>
+
+        <div class="post-comments-link">View all ${comments} comments</div>
+
+        <div class="post-add-comment">
+          <input type="text" placeholder="Add a comment…">
+          <button>Post</button>
+        </div>
+
+        <div class="post-time">${timeAgo(post.created_at)}</div>`;
+
+      return card;
+    }
+
+    function loadMorePosts() {
+      if (loading) return;
+      loading = true;
+
+      const next = allPosts.slice(currentIndex, currentIndex + POSTS_PER_BATCH);
+      next.forEach(post => postsContainer.appendChild(createPost(post)));
+      currentIndex += POSTS_PER_BATCH;
+
+      if (currentIndex >= allPosts.length) {
+        loader.innerText = "You're all caught up ✓";
+      }
+
+      loading = false;
+    }
+
+    async function loadJson() {
+      const response = await fetch("../data/generatedData/posts.json");
+      allPosts = await response.json();
+      allPosts = allPosts.data;
+      buildStories();
+      loadMorePosts();
+    }
+
+    window.addEventListener("scroll", () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) {
+        loadMorePosts();
+      }
+    });
+
+    async function init() {
+      await LocialPersonalities.load();
+      await loadJson();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

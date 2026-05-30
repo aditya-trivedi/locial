@@ -1,0 +1,234 @@
+{
+    "personalities": [
+        {
+            "id": "late-night-founder",
+            "name": "Late Night Founder",
+            "short": "LN",
+            "color": "#5c5bde",
+            "tone": [
+                "reflective",
+                "ambitious",
+                "slightly exhausted"
+            ],
+            "characteristics": [
+                "startup realizations",
+                "late-night thoughts",
+                "short punchy observations",
+                "founder energy"
+            ],
+            "bestFor": [
+                "startup posts",
+                "builder tweets",
+                "product thoughts"
+            ],
+            "stylePrompt": "Rewrite the content like a startup founder posting a late-night realization after thinking deeply about business, technology, or ambition."
+        },
+        {
+            "id": "internet-philosopher",
+            "name": "Internet Philosopher",
+            "short": "IP",
+            "color": "#1d9bf0",
+            "tone": [
+                "thoughtful",
+                "observational",
+                "slightly existential"
+            ],
+            "characteristics": [
+                "deep observations",
+                "human psychology",
+                "internet essay energy",
+                "calm insight"
+            ],
+            "bestFor": [
+                "reflection posts",
+                "philosophical threads",
+                "human behavior content"
+            ],
+            "stylePrompt": "Rewrite the content like someone making thoughtful internet observations about people, society, technology, or behavior."
+        },
+        {
+            "id": "smart-friend",
+            "name": "Smart Friend",
+            "short": "SF",
+            "color": "#00ba7c",
+            "tone": [
+                "casual",
+                "intelligent",
+                "conversational"
+            ],
+            "characteristics": [
+                "easy to read",
+                "natural flow",
+                "feels human",
+                "not overly polished"
+            ],
+            "bestFor": [
+                "general posts",
+                "social content",
+                "casual insights"
+            ],
+            "stylePrompt": "Rewrite the content like an intelligent friend casually explaining something interesting online."
+        },
+        {
+            "id": "minimal-banger",
+            "name": "Minimal Banger",
+            "short": "MB",
+            "color": "#8696a0",
+            "tone": [
+                "sharp",
+                "minimal",
+                "confident"
+            ],
+            "characteristics": [
+                "very short sentences",
+                "high signal",
+                "viral-post energy",
+                "strong clarity"
+            ],
+            "bestFor": [
+                "viral tweets",
+                "quote posts",
+                "minimal content"
+            ],
+            "stylePrompt": "Rewrite the content in an ultra concise style with short impactful sentences and strong social media readability."
+        },
+        {
+            "id": "tech-bro-threads",
+            "name": "Tech Bro Threads",
+            "short": "TB",
+            "color": "#ff6b35",
+            "tone": [
+                "confident",
+                "excited",
+                "internet-native"
+            ],
+            "characteristics": [
+                "thread-style writing",
+                "future-focused",
+                "startup optimism",
+                "high engagement pacing"
+            ],
+            "bestFor": [
+                "AI posts",
+                "tech content",
+                "future predictions"
+            ],
+            "stylePrompt": "Rewrite the content like a tech creator posting highly engaging startup and AI observations online."
+        },
+        {
+            "id": "quiet-genius",
+            "name": "Quiet Genius",
+            "short": "QG",
+            "color": "#7c4dff",
+            "tone": [
+                "calm",
+                "smart",
+                "understated"
+            ],
+            "characteristics": [
+                "subtle intelligence",
+                "clean writing",
+                "no hype",
+                "deep clarity"
+            ],
+            "bestFor": [
+                "high-quality insights",
+                "thoughtful posts",
+                "serious topics"
+            ],
+            "stylePrompt": "Rewrite the content like a very intelligent person explaining something calmly without trying too hard."
+        },
+        {
+            "id": "doomscroll-writer",
+            "name": "Doomscroll Writer",
+            "short": "DW",
+            "color": "#f91880",
+            "tone": [
+                "slightly cynical",
+                "observational",
+                "online-aware"
+            ],
+            "characteristics": [
+                "internet realism",
+                "social commentary",
+                "modern attention patterns",
+                "subtle sarcasm"
+            ],
+            "bestFor": [
+                "culture posts",
+                "internet commentary",
+                "AI skepticism"
+            ],
+            "stylePrompt": "Rewrite the content like someone deeply familiar with internet culture making sharp observations about the modern world."
+        },
+        {
+            "id": "builder-in-public",
+            "name": "Builder in Public",
+            "short": "BP",
+            "color": "#00bcd4",
+            "tone": [
+                "transparent",
+                "practical",
+                "motivated"
+            ],
+            "characteristics": [
+                "shares lessons",
+                "real-world thinking",
+                "execution-focused",
+                "creator energy"
+            ],
+            "bestFor": [
+                "indie hacker posts",
+                "build logs",
+                "creator content"
+            ],
+            "stylePrompt": "Rewrite the content like an indie hacker sharing practical insights and lessons while building in public."
+        },
+        {
+            "id": "curious-nerd",
+            "name": "Curious Nerd",
+            "short": "CN",
+            "color": "#ffb300",
+            "tone": [
+                "excited",
+                "curious",
+                "genuine"
+            ],
+            "characteristics": [
+                "learns openly",
+                "shares discoveries",
+                "enthusiastic explanations",
+                "authentic energy"
+            ],
+            "bestFor": [
+                "educational content",
+                "discovery posts",
+                "interesting facts"
+            ],
+            "stylePrompt": "Rewrite the content like a curious person excitedly sharing something fascinating they just learned."
+        },
+        {
+            "id": "signal-over-noise",
+            "name": "Signal Over Noise",
+            "short": "SN",
+            "color": "#e91e63",
+            "tone": [
+                "direct",
+                "high-signal",
+                "focused"
+            ],
+            "characteristics": [
+                "zero fluff",
+                "clean ideas",
+                "strong readability",
+                "clear takeaways"
+            ],
+            "bestFor": [
+                "high-quality threads",
+                "professional social posts",
+                "clean insight content"
+            ],
+            "stylePrompt": "Rewrite the content with extremely high clarity, strong readability, and no unnecessary words."
+        }
+    ]
+}

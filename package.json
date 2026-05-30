@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^25.9.1"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.4.2",
+    "semantic-chunking": "^2.7.0"
+  },
+  "name": "locial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

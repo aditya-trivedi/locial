@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feed | LinkedIn</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f4f2ee;
+      color: rgba(0, 0, 0, 0.9);
+      font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.43;
+    }
+
+    /* ── Global nav ── */
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 300;
+      background: #fff;
+      height: 52px;
+      display: flex;
+      justify-content: center;
+      padding: 0 12px;
+    }
+
+    .nav-inner {
+      width: 100%;
+      max-width: 1128px;
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .nav-logo { flex-shrink: 0; margin-right: 8px; display: flex; }
+    .nav-logo svg { width: 34px; height: 34px; display: block; }
+
+    .nav-search {
+      position: relative;
+      width: 280px;
+      flex-shrink: 0;
+    }
+    .nav-search input {
+      width: 100%;
+      height: 34px;
+      padding: 0 16px 0 40px;
+      border: none;
+      border-radius: 4px;
+      background: #edf3f8;
+      font-size: 14px;
+      outline: none;
+      color: rgba(0, 0, 0, 0.9);
+    }
+    .nav-search input::placeholder { color: rgba(0, 0, 0, 0.6); }
+    .nav-search .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      fill: rgba(0, 0, 0, 0.6);
+    }
+
+    .nav-items {
+      display: flex;
+      align-items: stretch;
+      margin-left: auto;
+      height: 100%;
+    }
+
+    .nav-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      max-width: 96px;
+      padding: 0 4px;
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.6);
+      text-decoration: none;
+    }
+    .nav-item:hover { color: rgba(0, 0, 0, 0.9); }
+    .nav-item.active { color: rgba(0, 0, 0, 0.9); }
+    .nav-item.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 64px;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 1px 1px 0 0;
+    }
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    .nav-item .nav-label {
+      font-size: 12px;
+      margin-top: 1px;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .nav-badge-wrap { position: relative; display: inline-flex; }
+    .nav-badge {
+      position: absolute;
+      top: -4px;
+      right: -8px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      background: #cc1016;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .nav-me {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      padding: 0 4px;
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .nav-me:hover { color: rgba(0, 0, 0, 0.9); }
+    .nav-me-photo {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #ccc;
+    }
+    .nav-me-row {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-top: 1px;
+      font-size: 12px;
+    }
+    .nav-me-caret {
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid currentColor;
+      margin-top: 2px;
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 48px;
+      background: rgba(0, 0, 0, 0.15);
+      margin: 0 4px;
+      align-self: center;
+    }
+
+    .nav-work {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      padding: 0 4px;
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .nav-work:hover { color: rgba(0, 0, 0, 0.9); }
+    .nav-work svg { width: 24px; height: 24px; fill: currentColor; }
+    .nav-work .nav-label { font-size: 12px; margin-top: 1px; }
+    .nav-work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 6px);
+      gap: 2px;
+      width: 24px;
+      height: 24px;
+      align-content: center;
+      justify-content: center;
+    }
+    .nav-work-grid span {
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      border-radius: 1px;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      max-width: 1128px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+      display: grid;
+      grid-template-columns: 300px minmax(0, 555px) 300px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .page { grid-template-columns: 1fr; max-width: 555px; }
+      .col-left, .col-right { display: none; }
+      .nav-search { display: none; }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e0dfdc;
+      overflow: hidden;
+      margin-bottom: 8px;
+      box-shadow: none;
+    }
+
+    /* ── Left sidebar ── */
+    .profile-card { position: relative; text-align: center; padding-bottom: 0; }
+    .profile-banner {
+      height: 54px;
+      background:
+        linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.35)),
+        url("https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&h=120&fit=crop") center/cover;
+    }
+    .profile-avatar-wrap { margin-top: -38px; margin-bottom: 4px; }
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #788fa5;
+      color: #fff;
+      font-size: 26px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-body { padding: 0 12px 16px; text-align: center; }
+    .profile-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      cursor: pointer;
+      line-height: 1.25;
+    }
+    .profile-name:hover { text-decoration: underline; color: #0a66c2; }
+    .profile-headline {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+    .profile-location {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-top: 2px;
+    }
+    .profile-company {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e0dfdc;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      cursor: pointer;
+    }
+    .profile-company:hover { color: #0a66c2; }
+    .company-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 2px;
+      background: #0a66c2;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .premium-card {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      cursor: pointer;
+    }
+    .premium-card:hover { background: rgba(0, 0, 0, 0.04); }
+    .premium-icon {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #c37d16 0%, #915907 100%);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .premium-icon svg { width: 14px; height: 14px; fill: #fff; }
+    .premium-text { font-size: 12px; line-height: 1.35; }
+    .premium-text strong { display: block; font-weight: 600; color: rgba(0, 0, 0, 0.9); }
+    .premium-text span { color: rgba(0, 0, 0, 0.6); }
+
+    .analytics-card { padding: 12px 16px; }
+    .analytics-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .analytics-row:hover .analytics-label { color: #0a66c2; }
+    .analytics-label { color: rgba(0, 0, 0, 0.6); }
+    .analytics-value { font-weight: 600; color: #0a66c2; }
+    .analytics-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      padding-top: 4px;
+      border-top: 1px solid #e0dfdc;
+      margin-top: 4px;
+      padding-top: 12px;
+    }
+    .analytics-link:hover { color: #0a66c2; }
+
+    .items-card { padding: 8px 0; }
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      cursor: pointer;
+    }
+    .item-row:hover { background: rgba(0, 0, 0, 0.04); }
+    .item-row svg { width: 24px; height: 24px; fill: rgba(0, 0, 0, 0.6); flex-shrink: 0; }
+
+    /* ── Feed ── */
+    .sort-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .sort-bar .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.15);
+      margin-left: 8px;
+    }
+    .sort-pill {
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .sort-pill::after {
+      content: "▾";
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .compose-card { padding: 12px 16px 4px; }
+    .compose-top {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-bottom: 8px;
+    }
+    .compose-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #788fa5;
+      color: #fff;
+      font-weight: 600;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .compose-trigger {
+      flex: 1;
+      height: 48px;
+      border: 1px solid rgba(0, 0, 0, 0.75);
+      border-radius: 24px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    .compose-trigger:hover {
+      background: rgba(0, 0, 0, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.75);
+    }
+    .compose-actions {
+      display: flex;
+      justify-content: space-around;
+      padding: 4px 0 8px;
+    }
+    .compose-action {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .compose-action:hover { background: rgba(0, 0, 0, 0.08); }
+    .compose-action .icon-video { color: #57c5f7; font-size: 20px; }
+    .compose-action .icon-photo { color: #5cb85c; font-size: 20px; }
+    .compose-action .icon-article { color: #e16745; font-size: 20px; }
+
+    /* ── Post ── */
+    .feed-post { padding: 0; }
+
+    .post-social-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 0;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .post-social-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .post-social-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .post-social-text { cursor: pointer; }
+    .post-social-text:hover { color: #0a66c2; text-decoration: underline; }
+    .post-social-text strong { color: rgba(0, 0, 0, 0.9); font-weight: 600; }
+
+    .post-controls {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .post-ctrl-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .post-ctrl-btn:hover { background: rgba(0, 0, 0, 0.08); }
+    .post-ctrl-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+    .post-main { padding: 8px 16px 0; }
+    .post-header {
+      display: flex;
+      gap: 8px;
+      position: relative;
+      padding-right: 88px;
+    }
+    .post-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      color: #fff;
+    }
+    .post-meta { flex: 1; min-width: 0; }
+    .post-author-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2px;
+      line-height: 1.3;
+    }
+    .post-author {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      cursor: pointer;
+    }
+    .post-author:hover { color: #0a66c2; text-decoration: underline; }
+    .verified-badge {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .post-badge { font-size: 12px; color: rgba(0, 0, 0, 0.6); }
+    .post-headline {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-top: 2px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .post-time {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .globe-icon { width: 14px; height: 14px; fill: rgba(0, 0, 0, 0.6); }
+
+    .post-follow-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 6px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      background: transparent;
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .post-follow-btn:hover {
+      background: rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.9);
+      color: rgba(0, 0, 0, 0.9);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.9);
+    }
+
+    .post-body {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(0, 0, 0, 0.9);
+      margin: 8px 16px;
+      word-break: break-word;
+    }
+    .post-see-more {
+      color: rgba(0, 0, 0, 0.6);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .post-see-more:hover { color: #0a66c2; }
+
+    .post-media {
+      margin: 0 0 8px;
+      background: #f3f2ef;
+      min-height: 200px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .post-media.single { grid-template-columns: 1fr; }
+    .post-media-cell {
+      aspect-ratio: 1.2;
+      background: linear-gradient(145deg, #e8e6e3 0%, #d4d2cf 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .post-reactions-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+    .reaction-stack {
+      display: flex;
+      align-items: center;
+    }
+    .reaction-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      margin-right: -5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .reaction-dot.like { background: #0a66c2; }
+    .reaction-dot.love { background: #df704d; }
+    .reaction-dot.praise { background: #6dae4f; }
+    .reaction-count { margin-left: 10px; cursor: pointer; }
+    .reaction-count:hover { color: #0a66c2; text-decoration: underline; }
+    .post-stats-right { cursor: pointer; }
+    .post-stats-right:hover { color: #0a66c2; text-decoration: underline; }
+
+    .post-actions {
+      display: flex;
+      border-top: 1px solid #e0dfdc;
+      margin: 0 8px 4px;
+      padding: 0 4px;
+    }
+    .post-action {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .post-action:hover { background: rgba(0, 0, 0, 0.08); }
+    .post-action svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+    .post-action.liked { color: #0a66c2; }
+    .post-action.liked svg { fill: #0a66c2; stroke: #0a66c2; }
+
+    .feed-loader {
+      text-align: center;
+      padding: 16px;
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 12px;
+    }
+
+    /* ── Right sidebar ── */
+    .news-card { padding: 12px 0 4px; }
+    .news-title {
+      font-size: 16px;
+      font-weight: 600;
+      padding: 0 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .news-info {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 0, 0, 0.6);
+      color: rgba(0, 0, 0, 0.6);
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .news-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      position: relative;
+      padding-left: 20px;
+    }
+    .news-item::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 14px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .news-item:hover { background: rgba(0, 0, 0, 0.04); }
+    .news-headline {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      line-height: 1.35;
+    }
+    .news-meta {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-top: 2px;
+    }
+    .card-show-more {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-show-more:hover { background: rgba(0, 0, 0, 0.04); color: rgba(0, 0, 0, 0.9); }
+    .card-show-more::after { content: "▾"; font-size: 12px; }
+
+    .puzzles-card { padding: 12px 0 4px; }
+    .puzzles-title {
+      font-size: 16px;
+      font-weight: 600;
+      padding: 0 16px 8px;
+    }
+    .puzzle-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .puzzle-item:hover { background: rgba(0, 0, 0, 0.04); }
+    .puzzle-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .puzzle-icon.patches { background: linear-gradient(135deg, #7b4397, #dc2430); }
+    .puzzle-icon.zip { background: linear-gradient(135deg, #f7971e, #ffd200); color: #333; }
+    .puzzle-icon.sudoku { background: #0a66c2; font-size: 14px; }
+    .puzzle-icon.tango { background: linear-gradient(135deg, #ee0979, #ff6a00); }
+    .puzzle-name { font-size: 14px; font-weight: 600; color: rgba(0, 0, 0, 0.9); }
+    .puzzle-played { font-size: 12px; color: rgba(0, 0, 0, 0.6); margin-top: 2px; }
+
+    .promoted-card { padding: 12px 16px; }
+    .promoted-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      margin-bottom: 8px;
+    }
+    .promoted-body {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .promoted-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 4px;
+      background: #0a66c2;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .promoted-text { font-size: 14px; font-weight: 600; line-height: 1.35; }
+    .promoted-sub { font-size: 12px; color: rgba(0, 0, 0, 0.6); margin-top: 4px; }
+
+    .footer-links {
+      padding: 8px 16px 16px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+      line-height: 1.9;
+    }
+    .footer-links a {
+      color: rgba(0, 0, 0, 0.6);
+      text-decoration: none;
+      margin-right: 8px;
+    }
+    .footer-links a:hover { color: #0a66c2; text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header class="global-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="#" aria-label="LinkedIn">
+      <svg viewBox="0 0 34 34"><path fill="#0a66c2" d="M34 34h-7.5v-12.8c0-3.1-1.1-5.2-3.9-5.2-2.1 0-3.4 1.4-4 2.8-.2.5-.3 1.2-.3 1.9V34h-7.5V12.2h7.5v3.4c1-1.6 2.8-3.9 6.8-3.9 5 0 8.9 3.3 8.9 10.3V34zM4.1 8.2C1.8 8.2 0 6.4 0 4.1S1.8 0 4.1 0 8.2 1.8 8.2 4.1 6.4 8.2 4.1 8.2zm.8 25.8H0V12.2h4.9V34z"/></svg>
+    </a>
+    <div class="nav-search">
+      <svg class="search-icon" viewBox="0 0 16 16"><path d="M14.56 13.44L11.3 10.18a5.51 5.51 0 10-1.06 1.06l3.26 3.26 1.06-1.06zM5.5 9.5a4 4 0 110-8 4 4 0 010 8z"/></svg>
+      <input type="text" placeholder="Search" readonly />
+    </div>
+    <nav class="nav-items">
+      <a class="nav-item active" href="#">
+        <svg viewBox="0 0 24 24"><path d="M23 9v2h-2v7a3 3 0 01-3 3h-4v-6h-4v6H6a3 3 0 01-3-3V11H1V9l11-7 11 7z"/></svg>
+        <span class="nav-label">Home</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24"><path d="M12 16v6M3 16v6M7.5 4.21l1.41-1.42A5 5 0 0112 2a5 5 0 013.09 1.79L16.5 4.2 12 7 7.5 4.21zM3 14v-2.07a5 5 0 014.9-5h8.2a5 5 0 014.9 5V14H3z"/></svg>
+        <span class="nav-label">My Network</span>
+      </a>
+      <a class="nav-item" href="#">
+        <svg viewBox="0 0 24 24"><path d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a1 1 0 00-1 1v11a3 3 0 003 3h12a3 3 0 003-3V8a1 1 0 00-1-1zM10 5h4v2h-4V5zm9 14a1 1 0 01-1 1H6a1 1 0 01-1-1V9h14v10z"/></svg>
+        <span class="nav-label">Jobs</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-badge-wrap">
+          <svg viewBox="0 0 24 24"><path d="M16 4H8a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2zm-4 14H8V6h4v12zm6 0h-4V6h4v12z"/></svg>
+          <span class="nav-badge">1</span>
+        </span>
+        <span class="nav-label">Messaging</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-badge-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7v3l2 2v1H3v-1l2-2V9a7 7 0 017-7zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+          <span class="nav-badge">11</span>
+        </span>
+        <span class="nav-label">Notifications</span>
+      </a>
+      <div class="nav-me">
+        <div class="nav-me-photo" style="background:#788fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">AT</div>
+        <div class="nav-me-row">Me <span class="nav-me-caret"></span></div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-work">
+        <div class="nav-work-grid" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+        <span class="nav-label">For Business</span>
+      </div>
+      <div class="nav-work">
+        <svg viewBox="0 0 24 24"><path d="M3 11h2v10H3V11zm4-6h2v16H7V5zm4 3h2v13h-2V8zm4-2h2v15h-2V6zm4 4h2v11h-2V10z"/></svg>
+        <span class="nav-label">Advertise</span>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <aside class="col-left">
+    <div class="card profile-card">
+      <div class="profile-banner"></div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar">AT</div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-name">Aditya Trivedi</div>
+        <div class="profile-headline">Building AI Feed · Semantic content</div>
+        <div class="profile-location">Bengaluru, Karnataka</div>
+        <div class="profile-company">
+          <span class="company-logo">LC</span>
+          LOCIAL
+        </div>
+      </div>
+    </div>
+
+    <div class="card premium-card">
+      <div class="premium-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7-6.3-4.6L5.7 21l2.3-7-6-4.6h7.6L12 2z"/></svg>
+      </div>
+      <div class="premium-text">
+        <strong>Gain exclusive tools &amp; insights</strong>
+        <span>Redeem Premium for ₹0</span>
+      </div>
+    </div>
+
+    <div class="card analytics-card">
+      <div class="analytics-row">
+        <span class="analytics-label">Profile viewers</span>
+        <span class="analytics-value" id="stat-viewers">62</span>
+      </div>
+      <div class="analytics-link">View all analytics</div>
+    </div>
+
+    <div class="card items-card">
+      <div class="item-row">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2v16z"/></svg>
+        Saved items
+      </div>
+      <div class="item-row">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Groups
+      </div>
+      <div class="item-row">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        Newsletters
+      </div>
+      <div class="item-row">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Events
+      </div>
+    </div>
+  </aside>
+
+  <section class="col-feed">
+    <div class="sort-bar">
+      <span>Sort by:</span>
+      <span class="sort-pill">Top</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <div class="card compose-card">
+      <div class="compose-top">
+        <div class="compose-avatar">AT</div>
+        <div class="compose-trigger">Start a post</div>
+      </div>
+      <div class="compose-actions">
+        <div class="compose-action">
+          <span class="icon-video">▶</span> Video
+        </div>
+        <div class="compose-action">
+          <span class="icon-photo">🖼</span> Photo
+        </div>
+        <div class="compose-action">
+          <span class="icon-article">📄</span> Write article
+        </div>
+      </div>
+    </div>
+
+    <div id="posts"></div>
+    <div class="feed-loader" id="loader"></div>
+  </section>
+
+  <aside class="col-right">
+    <div class="card news-card">
+      <div class="news-title">
+        LinkedIn News
+        <span class="news-info" title="Top professional news">i</span>
+      </div>
+      <div class="news-item">
+        <div class="news-headline">AI reshapes how cities get discovered</div>
+        <div class="news-meta">3d ago · 12,403 readers</div>
+      </div>
+      <div class="news-item">
+        <div class="news-headline">Semantic search moves into the mainstream</div>
+        <div class="news-meta">4d ago · 8,291 readers</div>
+      </div>
+      <div class="news-item">
+        <div class="news-headline">Founders rethink content pipelines</div>
+        <div class="news-meta">5d ago · 5,102 readers</div>
+      </div>
+      <div class="card-show-more">Show more</div>
+    </div>
+
+    <div class="card puzzles-card">
+      <div class="puzzles-title">Today's puzzles</div>
+      <div class="puzzle-item">
+        <div class="puzzle-icon patches">P</div>
+        <div>
+          <div class="puzzle-name">Patches</div>
+          <div class="puzzle-played">42 connections played</div>
+        </div>
+      </div>
+      <div class="puzzle-item">
+        <div class="puzzle-icon zip">Z</div>
+        <div>
+          <div class="puzzle-name">Zip</div>
+          <div class="puzzle-played">38 connections played</div>
+        </div>
+      </div>
+      <div class="puzzle-item">
+        <div class="puzzle-icon sudoku">#</div>
+        <div>
+          <div class="puzzle-name">Mini Sudoku</div>
+          <div class="puzzle-played">29 connections played</div>
+        </div>
+      </div>
+      <div class="puzzle-item">
+        <div class="puzzle-icon tango">T</div>
+        <div>
+          <div class="puzzle-name">Tango</div>
+          <div class="puzzle-played">21 connections played</div>
+        </div>
+      </div>
+      <div class="card-show-more">Show more</div>
+    </div>
+
+    <div class="card promoted-card">
+      <div class="promoted-header">
+        <span>Promoted</span>
+        <button type="button" class="post-ctrl-btn" aria-label="More">
+          <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+      </div>
+      <div class="promoted-body">
+        <div class="promoted-logo">LOCIAL</div>
+        <div>
+          <div class="promoted-text">Turn any document into a multi-platform feed</div>
+          <div class="promoted-sub">locial.ai · Technology</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <a href="#">About</a><a href="#">Accessibility</a><a href="#">Help Center</a><br />
+      <a href="#">Privacy &amp; Terms</a><a href="#">Ad Choices</a><br />
+      <a href="#">Advertising</a><a href="#">Business Services</a><br />
+      <span>Locial AI Feed © 2026</span>
+    </div>
+  </aside>
+</main>
+
+<script src="personalities-ui.js"></script>
+<script>
+  const POSTS_PER_BATCH = 10;
+  let allPosts = [];
+  let currentIndex = 0;
+  let loading = false;
+  let allLoaded = false;
+
+  const postsContainer = document.getElementById("posts");
+  const loader = document.getElementById("loader");
+
+  const headlines = {
+    "late-night-founder": "Founder · Building in public",
+    "internet-philosopher": "Writer · Internet culture & ideas",
+    "smart-friend": "Consultant · Making complex things simple",
+    "minimal-banger": "Content strategist · Less is more",
+    "tech-bro-threads": "Tech creator · AI & startups",
+    "quiet-genius": "Research lead · Deep work advocate",
+    "doomscroll-writer": "Commentator · Digital culture",
+    "builder-in-public": "Indie hacker · Shipping daily",
+    "curious-nerd": "Lifelong learner · Science & tech",
+    "signal-over-noise": "Analyst · High-signal insights"
+  };
+
+  const verifiedSvg = `<svg class="verified-badge" viewBox="0 0 16 16" fill="#0a66c2"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.2 4.2L7.1 10.3 4.8 8l1.4-1.4 1 1 3.3-3.3 1.7 1.7z"/></svg>`;
+
+  function mockCounts() {
+    return {
+      reactions: Math.floor(Math.random() * 800) + 20,
+      comments: Math.floor(Math.random() * 120) + 3,
+      reposts: Math.floor(Math.random() * 50) + 1
+    };
+  }
+
+  function fmtNum(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + "K";
+    return String(n);
+  }
+
+  function timeAgo(dateStr) {
+    const diff = (Date.now() - new Date(dateStr)) / 1000;
+    if (diff < 3600) return Math.floor(diff / 60) + "m";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h";
+    if (diff < 604800) return Math.floor(diff / 86400) + "d";
+    return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
+  function truncateText(text, max = 210) {
+    if (text.length <= max) return { text, truncated: false };
+    const cut = text.lastIndexOf(" ", max);
+    return {
+      text: text.slice(0, cut > 0 ? cut : max),
+      truncated: true
+    };
+  }
+
+  function pickLiker(excludeId) {
+    const others = LocialPersonalities.list.filter((p) => p.id !== excludeId);
+    return others[Math.floor(Math.random() * others.length)] || LocialPersonalities.list[0];
+  }
+
+  function createPost(post, index) {
+    const card = document.createElement("article");
+    card.className = "card feed-post";
+
+    const pers = LocialPersonalities.resolve(post);
+    const c = mockCounts();
+    const liked = Math.random() > 0.5;
+    const verified = Math.random() > 0.35;
+    const { text, truncated } = truncateText(post.rewritten.text);
+    const headline = headlines[pers.id] || "AI personality · Locial";
+    const connection = ["1st", "2nd", "2nd", "3rd"][Math.floor(Math.random() * 4)];
+    const liker = pickLiker(pers.id);
+    const showSocial = Math.random() > 0.35;
+    const showMedia = Math.random() > 0.7;
+
+    card.innerHTML = `
+      ${showSocial ? `
+      <div class="post-social-header">
+        <div class="post-social-left">
+          <div class="post-social-avatar" style="background:${liker.color}">${liker.short}</div>
+          <span class="post-social-text"><strong>${liker.name}</strong> likes this</span>
+        </div>
+        <div class="post-controls">
+          <button type="button" class="post-ctrl-btn" aria-label="More options">
+            <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          </button>
+          <button type="button" class="post-ctrl-btn" aria-label="Dismiss">✕</button>
+        </div>
+      </div>` : `
+      <div class="post-social-header">
+        <div></div>
+        <div class="post-controls">
+          <button type="button" class="post-ctrl-btn" aria-label="More options">
+            <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          </button>
+          <button type="button" class="post-ctrl-btn" aria-label="Dismiss">✕</button>
+        </div>
+      </div>`}
+      <div class="post-main">
+        <header class="post-header">
+          <div class="post-avatar" style="background:${pers.color}">${pers.short}</div>
+          <div class="post-meta">
+            <div class="post-author-line">
+              <span class="post-author">${pers.name}</span>
+              ${verified ? verifiedSvg : ""}
+              <span class="post-badge"> · ${connection}</span>
+            </div>
+            <div class="post-headline">${headline}</div>
+            <div class="post-time">
+              ${timeAgo(post.created_at)}
+              <svg class="globe-icon" viewBox="0 0 16 16"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM1.5 8h13M8 1.5c1.5 1.8 2.3 4 2.3 6.5S9.5 12.2 8 14c-1.5-1.8-2.3-4.2-2.3-6.5S6.5 3.3 8 1.5z"/></svg>
+            </div>
+          </div>
+          <button type="button" class="post-follow-btn">+ Follow</button>
+        </header>
+      </div>
+      <div class="post-body">
+        ${text}${truncated ? '<span class="post-see-more">…more</span>' : ""}
+      </div>
+      ${showMedia ? `
+      <div class="post-media ${Math.random() > 0.5 ? "" : "single"}">
+        <div class="post-media-cell">🚗</div>
+        ${Math.random() > 0.5 ? '<div class="post-media-cell">🌉</div>' : ""}
+      </div>` : ""}
+      <div class="post-reactions-summary">
+        <div class="reaction-stack">
+          <span class="reaction-dot like">👍</span>
+          <span class="reaction-dot love">❤️</span>
+          <span class="reaction-dot praise">👏</span>
+          <span class="reaction-count">${fmtNum(c.reactions)}</span>
+        </div>
+        <span class="post-stats-right">${c.comments} comments · ${c.reposts} reposts</span>
+      </div>
+      <div class="post-actions">
+        <button type="button" class="post-action ${liked ? "liked" : ""}">
+          <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 00-6 0v4H4v10h16V9h-6zm-4-4a1 1 0 011 1v4H9V5a1 1 0 011-1zm8 13H6V10h12v8z"/></svg>
+          Like
+        </button>
+        <button type="button" class="post-action">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Comment
+        </button>
+        <button type="button" class="post-action">
+          <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+          Repost
+        </button>
+        <button type="button" class="post-action">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          Send
+        </button>
+      </div>`;
+
+    return card;
+  }
+
+  function loadMorePosts() {
+    if (loading || allLoaded) return;
+    if (currentIndex >= allPosts.length) {
+      allLoaded = true;
+      loader.textContent = "You're all caught up";
+      return;
+    }
+
+    loading = true;
+    const next = allPosts.slice(currentIndex, currentIndex + POSTS_PER_BATCH);
+    next.forEach((post, i) => postsContainer.appendChild(createPost(post, currentIndex + i)));
+    currentIndex += next.length;
+
+    loader.textContent = currentIndex >= allPosts.length ? "You're all caught up" : "";
+    if (currentIndex >= allPosts.length) allLoaded = true;
+    loading = false;
+  }
+
+  async function loadJson() {
+    const response = await fetch("../data/generatedData/posts.json");
+    const data = await response.json();
+    allPosts = data.data;
+    loadMorePosts();
+  }
+
+  window.addEventListener("scroll", () => {
+    if (allLoaded) return;
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) {
+      loadMorePosts();
+    }
+  });
+
+  async function init() {
+    await LocialPersonalities.load();
+    document.getElementById("stat-viewers").textContent =
+      String(40 + LocialPersonalities.list.length * 2);
+    await loadJson();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

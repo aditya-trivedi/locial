@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Feed</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #e7e9ea;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+
+    .layout {
+      width: 100%;
+      max-width: 1265px;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 275px;
+      padding: 8px 12px;
+      border-right: 1px solid #2f3336;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .logo {
+      padding: 12px;
+      margin-bottom: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      border-radius: 9999px;
+      transition: background 0.2s;
+      width: 52px;
+      height: 52px;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo:hover { background: rgba(231,233,234,.1); }
+    .logo svg { width: 28px; height: 28px; fill: #e7e9ea; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 12px;
+      border-radius: 9999px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: fit-content;
+    }
+    .nav-item:hover { background: rgba(231,233,234,.1); }
+    .nav-item svg {
+      width: 26px; height: 26px;
+      fill: none; stroke: #e7e9ea;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .nav-label { font-size: 20px; font-weight: 400; }
+
+    .post-btn {
+      margin-top: 16px;
+      background: #1d9bf0;
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 90%;
+      transition: background 0.2s;
+    }
+    .post-btn:hover { background: #1a8cd8; }
+
+    .profile-row {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .profile-row:hover { background: rgba(231,233,234,.1); }
+    .profile-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #1d9bf0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px; flex-shrink: 0;
+    }
+    .profile-info { flex: 1; min-width: 0; }
+    .profile-name { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-handle { color: #71767b; font-size: 14px; }
+
+    /* ── Feed ── */
+    .feed {
+      width: 600px;
+      border-right: 1px solid #2f3336;
+      min-height: 100vh;
+    }
+
+    .feed-header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(12px);
+      background: rgba(0,0,0,0.85);
+      border-bottom: 1px solid #2f3336;
+      z-index: 100;
+    }
+
+    .feed-tabs { display: flex; }
+    .feed-tab {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      font-size: 15px; font-weight: 500;
+      cursor: pointer;
+      color: #71767b;
+      position: relative;
+      transition: background 0.15s;
+    }
+    .feed-tab:hover { background: rgba(231,233,234,.07); }
+    .feed-tab.active { color: #e7e9ea; font-weight: 700; }
+    .feed-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 56px; height: 4px;
+      background: #1d9bf0;
+      border-radius: 9999px;
+    }
+
+    .compose-box {
+      padding: 12px 16px;
+      border-bottom: 1px solid #2f3336;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .compose-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #1d9bf0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 15px; flex-shrink: 0;
+    }
+    .compose-input {
+      flex: 1;
+      background: transparent; border: none; outline: none;
+      font-size: 20px; color: #e7e9ea;
+      padding: 8px 0;
+      font-family: inherit;
+    }
+    .compose-input::placeholder { color: #71767b; }
+
+    /* ── Posts ── */
+    .post {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2f3336;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .post:hover { background: rgba(231,233,234,.03); }
+
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #1d9bf0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px; flex-shrink: 0;
+    }
+
+    .content { flex: 1; min-width: 0; }
+
+    .top-row {
+      display: flex; gap: 4px; align-items: center;
+      margin-bottom: 2px; flex-wrap: wrap;
+    }
+    .name { font-weight: 700; font-size: 15px; }
+    .handle, .date { color: #71767b; font-size: 15px; }
+    .dot { color: #71767b; font-size: 15px; }
+
+    .verified { color: #1d9bf0; margin-left: 2px; display: inline-flex; align-items: center; }
+    .verified svg { width: 18px; height: 18px; fill: #1d9bf0; }
+
+    .text {
+      font-size: 15px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      max-width: 380px;
+      color: #71767b;
+    }
+    .action {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; cursor: pointer;
+      padding: 6px; border-radius: 9999px;
+      transition: all 0.15s;
+      margin: -6px;
+    }
+    .action svg {
+      width: 18px; height: 18px;
+      fill: none; stroke: currentColor;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .action.reply:hover  { color: #1d9bf0; background: rgba(29,155,240,.1); }
+    .action.retweet:hover { color: #00ba7c; background: rgba(0,186,124,.1); }
+    .action.like:hover    { color: #f91880; background: rgba(249,24,128,.1); }
+    .action.views:hover   { color: #1d9bf0; background: rgba(29,155,240,.1); }
+
+    /* ── Right sidebar ── */
+    .rightbar { width: 350px; padding: 12px 16px; }
+
+    .search-bar {
+      background: #202327;
+      border-radius: 9999px;
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .search-bar:focus-within { background: #000; border-color: #1d9bf0; }
+    .search-bar svg {
+      width: 18px; height: 18px;
+      fill: none; stroke: #71767b;
+      stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .search-bar input {
+      background: transparent; border: none; outline: none;
+      color: #e7e9ea; font-size: 15px; width: 100%;
+    }
+    .search-bar input::placeholder { color: #71767b; }
+
+    .card {
+      background: #16181c;
+      border-radius: 16px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #2f3336;
+    }
+    .card-title { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+
+    .trend-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #2f3336;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .trend-item:last-child { border-bottom: none; }
+    .trend-item:hover { background: rgba(255,255,255,.03); margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+    .trend-cat  { color: #71767b; font-size: 13px; }
+    .trend-name { font-weight: 700; font-size: 15px; margin: 2px 0; }
+    .trend-count { color: #71767b; font-size: 13px; }
+
+    .who-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .who-item:hover { background: rgba(255,255,255,.03); margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+    .who-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px;
+    }
+    .who-info { flex: 1; min-width: 0; }
+    .who-name  { font-weight: 700; font-size: 15px; }
+    .who-handle { color: #71767b; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .follow-btn {
+      background: #e7e9ea; color: #0f1419;
+      border: none; border-radius: 9999px;
+      padding: 6px 16px; font-size: 14px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .follow-btn:hover { background: #ced0d2; }
+
+    .loader { padding: 28px; text-align: center; color: #71767b; font-size: 15px; }
+
+    @media (max-width: 1200px) { .rightbar { display: none; } }
+    @media (max-width: 700px)  { .sidebar  { display: none; } .feed { width: 100%; border-right: none; } }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.732-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </div>
+
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path stroke-width="2" d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span class="nav-label">Explore</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label">Notifications</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="nav-label">Messages</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+      <span class="nav-label">Bookmarks</span>
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </div>
+
+    <button class="post-btn">Post</button>
+
+    <div class="profile-row">
+      <div class="profile-avatar">Y</div>
+      <div class="profile-info">
+        <div class="profile-name">You</div>
+        <div class="profile-handle">@you</div>
+      </div>
+      <svg style="width:18px;height:18px;fill:none;stroke:#e7e9ea;stroke-width:1.75;stroke-linecap:round" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+      </svg>
+    </div>
+  </aside>
+
+  <!-- Feed -->
+  <main class="feed">
+    <div class="feed-header">
+      <div class="feed-tabs">
+        <div class="feed-tab active">For you</div>
+        <div class="feed-tab">Following</div>
+      </div>
+    </div>
+
+    <div class="compose-box">
+      <div class="compose-avatar">Y</div>
+      <input class="compose-input" type="text" placeholder="What is happening?!">
+    </div>
+
+    <div id="posts"></div>
+    <div class="loader" id="loader">Loading posts...</div>
+  </main>
+
+  <!-- Right sidebar -->
+  <aside class="rightbar">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search">
+    </div>
+
+    <div class="card">
+      <div class="card-title">What's happening</div>
+      <div class="trend-item">
+        <div class="trend-cat">Technology · Trending</div>
+        <div class="trend-name">#AIFeed</div>
+        <div class="trend-count">12.4K posts</div>
+      </div>
+      <div class="trend-item">
+        <div class="trend-cat">Trending in Tech</div>
+        <div class="trend-name">Semantic Chunking</div>
+        <div class="trend-count">5,821 posts</div>
+      </div>
+      <div class="trend-item">
+        <div class="trend-cat">Technology · Trending</div>
+        <div class="trend-name">#LLMs</div>
+        <div class="trend-count">48.2K posts</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Who to follow</div>
+      <div class="who-item">
+        <div class="who-avatar" style="background:#5c5bde;color:#fff">PA</div>
+        <div class="who-info">
+          <div class="who-name">Professional Analyst</div>
+          <div class="who-handle">@pro_analyst</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="who-item">
+        <div class="who-avatar" style="background:#1d9bf0;color:#fff">IE</div>
+        <div class="who-info">
+          <div class="who-name">Internet Essayist</div>
+          <div class="who-handle">@inet_essayist</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="who-item">
+        <div class="who-avatar" style="background:#00ba7c;color:#fff">SF</div>
+        <div class="who-info">
+          <div class="who-name">Startup Founder</div>
+          <div class="who-handle">@startup_founder</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+      <div class="who-item">
+        <div class="who-avatar" style="background:#f91880;color:#fff">CR</div>
+        <div class="who-info">
+          <div class="who-name">Contrarian Realist</div>
+          <div class="who-handle">@contra_real</div>
+        </div>
+        <button class="follow-btn">Follow</button>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script src="personalities-ui.js"></script>
+<script>
+  const POSTS_PER_BATCH = 20;
+  let allPosts = [];
+  let currentIndex = 0;
+  let loading = false;
+
+  const postsContainer = document.getElementById("posts");
+  const loader = document.getElementById("loader");
+
+  function mockCounts() {
+    return {
+      replies:  Math.floor(Math.random() * 80)     + 1,
+      retweets: Math.floor(Math.random() * 500)    + 5,
+      likes:    Math.floor(Math.random() * 5000)   + 10,
+      views:    Math.floor(Math.random() * 500000) + 1000
+    };
+  }
+
+  function fmtNum(n) {
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
+    if (n >= 1_000)     return (n / 1_000).toFixed(1) + "K";
+    return n;
+  }
+
+  function timeAgo(dateStr) {
+    const diff = (Date.now() - new Date(dateStr)) / 1000;
+    if (diff < 60)    return Math.floor(diff) + "s";
+    if (diff < 3600)  return Math.floor(diff / 60) + "m";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h";
+    return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+
+  function createPost(post) {
+    const div = document.createElement("div");
+    div.className = "post";
+
+    const pers    = LocialPersonalities.resolve(post);
+    const name    = pers.name;
+    const id      = pers.id;
+    const initial = name.charAt(0);
+    const color   = pers.color;
+    const c       = mockCounts();
+    const verified = Math.random() > 0.5;
+
+    div.innerHTML = `
+      <div class="avatar" style="background:${color}">${initial}</div>
+      <div class="content">
+        <div class="top-row">
+          <span class="name">${name}</span>
+          ${verified ? `<span class="verified">
+            <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="none" fill="#1d9bf0"/></svg>
+          </span>` : ""}
+          <span class="handle">@${id}</span>
+          <span class="dot">·</span>
+          <span class="date">${timeAgo(post.created_at)}</span>
+        </div>
+        <div class="text">${post.rewritten.text}</div>
+        <div class="actions">
+          <div class="action reply">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>${fmtNum(c.replies)}</span>
+          </div>
+          <div class="action retweet">
+            <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span>${fmtNum(c.retweets)}</span>
+          </div>
+          <div class="action like">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>${fmtNum(c.likes)}</span>
+          </div>
+          <div class="action views">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>${fmtNum(c.views)}</span>
+          </div>
+          <div class="action">
+            <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </div>
+        </div>
+      </div>`;
+
+    return div;
+  }
+
+  function loadMorePosts() {
+    if (loading) return;
+    loading = true;
+
+    const next = allPosts.slice(currentIndex, currentIndex + POSTS_PER_BATCH);
+    next.forEach(post => postsContainer.appendChild(createPost(post)));
+    currentIndex += POSTS_PER_BATCH;
+
+    if (currentIndex >= allPosts.length) {
+      loader.innerText = "You're all caught up";
+    }
+
+    loading = false;
+  }
+
+  async function loadJson() {
+    const response = await fetch("../data/generatedData/posts.json");
+    allPosts = await response.json();
+    allPosts = allPosts.data;
+    loadMorePosts();
+  }
+
+  window.addEventListener("scroll", () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) {
+      loadMorePosts();
+    }
+  });
+
+  async function init() {
+    await LocialPersonalities.load();
+    await loadJson();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

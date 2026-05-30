@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Feed – Reddit</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #dae0e6;
+      color: #1c1c1c;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #fff;
+      border-bottom: 1px solid #edeff1;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #1c1c1c;
+      font-weight: 700;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .navbar-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .navbar-search {
+      flex: 1;
+      max-width: 690px;
+      background: #f6f7f8;
+      border: 1px solid #edeff1;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      height: 36px;
+      transition: all 0.2s;
+    }
+    .navbar-search:focus-within {
+      background: #fff;
+      border-color: #0079d3;
+    }
+    .navbar-search svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: #878a8c;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+    .navbar-search input {
+      background: transparent; border: none; outline: none;
+      font-size: 14px; color: #1c1c1c; width: 100%;
+    }
+    .navbar-search input::placeholder { color: #878a8c; }
+
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .btn-login {
+      border: 1px solid #0079d3;
+      color: #0079d3;
+      background: transparent;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-login:hover { background: rgba(0,121,211,.1); }
+
+    .btn-signup {
+      background: #0079d3;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-signup:hover { background: #006cbf; }
+
+    /* ── Layout ── */
+    .layout {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    /* ── Feed ── */
+    .feed { flex: 1; min-width: 0; }
+
+    .sort-bar {
+      background: #fff;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      padding: 10px 12px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .sort-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 2px;
+      border: none;
+      background: transparent;
+      color: #878a8c;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sort-btn:hover { background: #e8e8e8; color: #0079d3; }
+    .sort-btn.active { color: #0079d3; background: #e8f0fe; }
+    .sort-btn svg {
+      width: 18px; height: 18px;
+      fill: currentColor;
+    }
+
+    /* ── Post card ── */
+    .post-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: flex;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .post-card:hover { border-color: #898989; }
+
+    .vote-col {
+      width: 40px;
+      background: #f8f9fa;
+      border-radius: 4px 0 0 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 4px;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .vote-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 2px;
+      color: #878a8c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .vote-btn:hover.up   { color: #ff4500; background: rgba(255,69,0,.1); }
+    .vote-btn:hover.down { color: #7193ff; background: rgba(113,147,255,.1); }
+    .vote-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+    .vote-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1c1c1c;
+    }
+
+    .post-body {
+      padding: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .subreddit-icon {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: #ff4500;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+
+    .subreddit {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1c1c1c;
+    }
+    .subreddit:hover { text-decoration: underline; }
+
+    .meta-sep { color: #878a8c; font-size: 12px; }
+    .meta-user { color: #878a8c; font-size: 12px; }
+    .meta-user span { color: #0079d3; cursor: pointer; }
+    .meta-user span:hover { text-decoration: underline; }
+    .meta-time { color: #878a8c; font-size: 12px; }
+
+    .post-title {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: #1c1c1c;
+      margin-bottom: 8px;
+    }
+
+    .flair {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #0079d3;
+      border-radius: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 6px;
+      margin-bottom: 8px;
+    }
+
+    .post-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #3c3c3c;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 2px;
+      border: none;
+      background: transparent;
+      color: #878a8c;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .action-btn:hover { background: #e8e8e8; color: #1c1c1c; }
+    .action-btn svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: currentColor;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── Right sidebar ── */
+    .sidebar {
+      width: 312px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .sidebar-card-banner {
+      height: 64px;
+      background: linear-gradient(to right, #ff4500, #ff6534);
+    }
+
+    .sidebar-card-body { padding: 12px; }
+
+    .sidebar-card-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-card-desc {
+      font-size: 14px;
+      color: #3c3c3c;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .sidebar-stat-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .sidebar-stat { flex: 1; }
+    .sidebar-stat-num { font-size: 16px; font-weight: 700; }
+    .sidebar-stat-label { font-size: 12px; color: #878a8c; }
+
+    .btn-create {
+      display: block;
+      width: 100%;
+      background: #ff4500;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+    .btn-create:hover { background: #e03d00; }
+
+    .rule-item {
+      display: flex;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid #edeff1;
+      font-size: 14px;
+    }
+    .rule-item:last-child { border-bottom: none; }
+    .rule-num { color: #878a8c; font-weight: 700; flex-shrink: 0; }
+
+    .community-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .community-item:hover .community-name { text-decoration: underline; }
+    .community-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+    }
+    .community-name { font-size: 14px; font-weight: 700; }
+    .community-members { font-size: 12px; color: #878a8c; }
+
+    .loader {
+      text-align: center;
+      padding: 28px;
+      color: #878a8c;
+      font-size: 14px;
+    }
+
+    @media (max-width: 960px) { .sidebar { display: none; } }
+    @media (max-width: 640px) { .layout { padding: 0 8px; margin: 8px auto; } .post-title { font-size: 15px; } }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar-logo" href="#">
+      <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="10" fill="#ff4500"/>
+        <path fill="#fff" d="M16.67 10a1.46 1.46 0 0 0-2.47-1 7.12 7.12 0 0 0-3.85-1.23l.65-3.08 2.13.45a1 1 0 1 0 .14-.5l-2.38-.5a.12.12 0 0 0-.15.09l-.73 3.44a7.14 7.14 0 0 0-3.89 1.23 1.46 1.46 0 1 0-1.61 2.39 2.87 2.87 0 0 0 0 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 0 0 0-.44 1.46 1.46 0 0 0 .46-1.29zM7.27 11a1 1 0 1 1 1 1 1 1 0 0 1-1-1zm5.58 2.71a3.58 3.58 0 0 1-2.85.79 3.58 3.58 0 0 1-2.85-.79.19.19 0 0 1 .27-.27 3.24 3.24 0 0 0 2.58.66 3.24 3.24 0 0 0 2.58-.66.19.19 0 1 1 .27.27zm-.14-1.71a1 1 0 1 1 1-1 1 1 0 0 1-1 1z"/>
+      </svg>
+      reddit
+    </a>
+
+    <div class="navbar-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search Reddit">
+    </div>
+
+    <div class="navbar-actions">
+      <button class="btn-login">Log In</button>
+      <button class="btn-signup">Sign Up</button>
+    </div>
+  </nav>
+
+  <div class="layout">
+
+    <!-- Feed -->
+    <main class="feed">
+
+      <div class="sort-bar">
+        <button class="sort-btn active">
+          <svg viewBox="0 0 20 20"><path d="M10 2l2.5 5 5.5.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5-4-3.9 5.5-.8z"/></svg>
+          Best
+        </button>
+        <button class="sort-btn">
+          <svg viewBox="0 0 20 20"><path d="M10 1a9 9 0 1 0 0 18A9 9 0 0 0 10 1zm1 13H9v-5h2v5zm0-7H9V5h2v2z"/></svg>
+          Hot
+        </button>
+        <button class="sort-btn">
+          <svg viewBox="0 0 20 20"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm.75 11.25h-1.5v-5.5h1.5v5.5zm0-7h-1.5v-1.5h1.5v1.5z"/></svg>
+          New
+        </button>
+        <button class="sort-btn">
+          <svg viewBox="0 0 20 20"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm1 11H9V9h2v4zm0-6H9V5h2v2z"/></svg>
+          Top
+        </button>
+      </div>
+
+      <div id="posts"></div>
+      <div class="loader" id="loader">Loading posts...</div>
+
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-banner"></div>
+        <div class="sidebar-card-body">
+          <div class="sidebar-card-title">AI Generated Feed</div>
+          <div class="sidebar-card-desc">
+            Posts generated from semantic chunking + personality-based rewriting. A place for insightful takes.
+          </div>
+          <div class="sidebar-stat-row">
+            <div class="sidebar-stat">
+              <div class="sidebar-stat-num">1.2M</div>
+              <div class="sidebar-stat-label">Members</div>
+            </div>
+            <div class="sidebar-stat">
+              <div class="sidebar-stat-num">4.1K</div>
+              <div class="sidebar-stat-label">Online</div>
+            </div>
+          </div>
+          <button class="btn-create">Create Post</button>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-body">
+          <div class="sidebar-card-title">Posting Personalities</div>
+          <div class="rule-item"><span class="rule-num">1</span> Professional Analyst</div>
+          <div class="rule-item"><span class="rule-num">2</span> Internet Essayist</div>
+          <div class="rule-item"><span class="rule-num">3</span> Startup Founder</div>
+          <div class="rule-item"><span class="rule-num">4</span> Contrarian Realist</div>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-body">
+          <div class="sidebar-card-title">Top Communities</div>
+          <div class="community-item">
+            <div class="community-icon" style="background:#ff4500">r/</div>
+            <div>
+              <div class="community-name">r/technology</div>
+              <div class="community-members">14.2M members</div>
+            </div>
+          </div>
+          <div class="community-item">
+            <div class="community-icon" style="background:#0079d3">r/</div>
+            <div>
+              <div class="community-name">r/MachineLearning</div>
+              <div class="community-members">2.8M members</div>
+            </div>
+          </div>
+          <div class="community-item">
+            <div class="community-icon" style="background:#46d160">r/</div>
+            <div>
+              <div class="community-name">r/artificial</div>
+              <div class="community-members">890K members</div>
+            </div>
+          </div>
+          <div class="community-item">
+            <div class="community-icon" style="background:#ff585b">r/</div>
+            <div>
+              <div class="community-name">r/ChatGPT</div>
+              <div class="community-members">5.1M members</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <script src="personalities-ui.js"></script>
+  <script>
+    const POSTS_PER_BATCH = 20;
+    let allPosts = [];
+    let currentIndex = 0;
+    let loading = false;
+
+    const postsContainer = document.getElementById("posts");
+    const loader = document.getElementById("loader");
+
+    const subreddits = [
+      { name: "r/technology",      color: "#ff4500", flair: "AI" },
+      { name: "r/MachineLearning", color: "#0079d3", flair: "Discussion" },
+      { name: "r/artificial",      color: "#46d160", flair: "News" },
+      { name: "r/ChatGPT",         color: "#ff585b", flair: "Opinion" },
+      { name: "r/singularity",     color: "#7193ff", flair: "Analysis" },
+    ];
+
+    function redditUsername(post) {
+      const pers = LocialPersonalities.resolve(post);
+      return pers.name;
+    }
+
+    function fmtVotes(n) {
+      if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+      return n;
+    }
+
+    function timeAgo(dateStr) {
+      const diff = (Date.now() - new Date(dateStr)) / 1000;
+      if (diff < 60)     return Math.floor(diff) + " seconds ago";
+      if (diff < 3600)   return Math.floor(diff / 60) + " minutes ago";
+      if (diff < 86400)  return Math.floor(diff / 3600) + " hours ago";
+      return Math.floor(diff / 86400) + " days ago";
+    }
+
+    function truncateTitle(text, maxLen = 120) {
+      return text.length > maxLen ? text.slice(0, maxLen) + "…" : text;
+    }
+
+    function createPost(post) {
+      const div = document.createElement("div");
+      div.className = "post-card";
+
+      const sub    = subreddits[Math.floor(Math.random() * subreddits.length)];
+      const votes  = Math.floor(Math.random() * 40000) + 100;
+      const comments = Math.floor(Math.random() * 1200) + 5;
+      const pers   = LocialPersonalities.resolve(post);
+      const user   = redditUsername(post);
+      const title  = truncateTitle(post.rewritten.text);
+      const body   = post.rewritten.text.length > 120 ? post.rewritten.text : "";
+
+      div.innerHTML = `
+        <div class="vote-col">
+          <button class="vote-btn up" title="Upvote">
+            <svg viewBox="0 0 24 24"><path d="M12 4l8 8H4z"/></svg>
+          </button>
+          <span class="vote-count">${fmtVotes(votes)}</span>
+          <button class="vote-btn down" title="Downvote">
+            <svg viewBox="0 0 24 24"><path d="M12 20l-8-8h16z"/></svg>
+          </button>
+        </div>
+
+        <div class="post-body">
+          <div class="post-meta">
+            <div class="subreddit-icon" style="background:${sub.color}">r/</div>
+            <span class="subreddit">${sub.name}</span>
+            <span class="meta-sep">•</span>
+            <span class="meta-user">Posted by <span style="color:${pers.color}">${user}</span></span>
+            <span class="meta-sep">•</span>
+            <span class="meta-time">${timeAgo(post.created_at)}</span>
+          </div>
+
+          <div class="post-title">${title}</div>
+          <span class="flair">${sub.flair}</span>
+
+          ${body ? `<div class="post-text">${body}</div>` : ""}
+
+          <div class="post-actions">
+            <button class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              ${comments} Comments
+            </button>
+            <button class="action-btn">
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share
+            </button>
+            <button class="action-btn">
+              <svg viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              Save
+            </button>
+            <button class="action-btn">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+        </div>`;
+
+      return div;
+    }
+
+    function loadMorePosts() {
+      if (loading) return;
+      loading = true;
+
+      const next = allPosts.slice(currentIndex, currentIndex + POSTS_PER_BATCH);
+      next.forEach(post => postsContainer.appendChild(createPost(post)));
+      currentIndex += POSTS_PER_BATCH;
+
+      if (currentIndex >= allPosts.length) {
+        loader.innerText = "You've reached the end!";
+      }
+
+      loading = false;
+    }
+
+    async function loadJson() {
+      const response = await fetch("../data/generatedData/posts.json");
+      allPosts = await response.json();
+      allPosts = allPosts.data;
+      loadMorePosts();
+    }
+
+    window.addEventListener("scroll", () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) {
+        loadMorePosts();
+      }
+    });
+
+    async function init() {
+      await LocialPersonalities.load();
+      await loadJson();
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
